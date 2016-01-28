@@ -1,0 +1,94 @@
+import json
+
+class Media(object):
+    def __init__(self, title, kind, has='Adam'):
+        self.title = title
+        self.kind = kind
+        self.has = has
+    def lend(self, name):
+        """
+        Changes the current possessor of media to name
+        
+        """
+        self.has = name     
+    def get_has(self):
+        """
+        Prints who has the media
+        
+        """
+        print('{} has {}'.format(self.has, self.title))
+
+class Movie(Media):
+    def __init__(self, title, genre):
+        self.genre = genre
+        super(Movie,self).__init__(title, 'movie')
+    def play(self):
+        print('Playing {}'.format(self.title))
+    def eject(self):
+        print('Ejecting {}'.format(self.title))
+
+class Book(Media):
+    def __init__(self, title, genre,author):
+        self.genre = genre
+        self.author = author
+        self.status = 'unread'
+        super(Book, self).__init__(title, 'Book')
+    def read(self):
+        """
+        Changes a book's status to read
+        
+        """
+        self.status = 'read'
+class Game(Media):
+    def __init__(self, title, system):
+        self.title = title
+        self.system = system
+        self.status = 'new'
+        super(Game, self).__init__(title, 'game')
+    def play(self):
+        self.status = 'used'
+
+
+books = []
+movies = []
+games = []
+
+while True:
+    if input("Do you wish to enter data?").lower() in ["no", "n"]:
+        break
+    kind = input("What kind of media?")
+    if kind.lower() == "book":
+        title = input("Title?").lower()
+        genre = input("Genre?").lower()
+        author = input("Author?").lower()
+        book = Book(title, genre, author)
+        books.append({"title": book.title, "genre": book.genre,"author": book.author, "has" :book.has})
+    elif "game" in kind.lower():
+        title = input("Title?")
+        system = input("System?")
+        game = Game(title, system)
+        games.append( {"title":game.title, "system" :game.system, "status":game.status, "has" :game.has})
+    elif kind.lower() in ["movie", "dvd", "bluray"]:
+        title = input("Title?")
+        genre = input("Genre?")
+        movie = Movie(title, genre)
+        movies.append( {"title": movie.title, "genre" :movie.genre, "has" :movie.has})
+    else:
+        print("I'm not familiar with that kind of media")
+
+            
+"""This updates the text file with the info"""
+for name, new in [("books.txt", books), ("movies.txt", movies), ("games.txt", games)]:
+            try:
+                with open(name, "r") as fh:
+                    pass
+            except IOError:
+                with open(name, 'w') as fh:
+                    json.dump([], fh)
+            with open(name, 'r') as fh:
+                existing_media = json.load(fh)
+                existing_names = [ m['title'] for m in existing_media ]
+                new_media = [ x for x in new if x['title'] not in existing_names ]
+                existing_media.extend(new_media)
+            with open(name, "w") as fh:
+                json.dump(existing_media, fh)
